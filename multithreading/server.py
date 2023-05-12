@@ -1,0 +1,84 @@
+import socket
+import threading
+# Importing the library
+import psutil
+from sys import getsizeof
+from matplotlib import pyplot as plt
+ 
+# Calling psutil.cpu_precent() for 4 seconds
+
+class Server:
+    def __init__(self, host, port):
+        self.host = "localhost"
+        self.port = 12345
+
+        self.cpu_ps = []
+        self.memory_ps = []
+        self.received = 0
+
+        self.threads = []
+
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind((host, port))
+
+    def start(self):
+
+        self.server.listen()
+        print(f"[LISTENING] Server is listening on {self.host}:{self.port}.")
+
+        handles = [self.handle_report]
+        for h in handles:
+            thread = threading.Thread(target=h)
+            thread.daemon = True
+            thread.start()
+            self.threads.append(thread)
+
+        while True:
+            conn, addr = self.server.accept()
+            thread = threading.Thread(target=self.handle_client, args=(conn, addr))
+            thread.daemon = True
+            thread.start()
+            self.threads.append(thread)
+            print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+
+    def handle_client(self, conn, addr):
+        print(f"[NEW CONNECTION] {addr} connected.")
+
+        connected = True
+        while connected:
+            msg = conn.recv(1024)
+            if msg == b"quit":
+                connected = False
+            else:
+                self.received += getsizeof(msg)
+                #print(f"[{addr}] {msg.decode()}")
+                conn.sendall(msg[::-1])
+
+        conn.close()
+        print(f"[DISCONNECTED] {addr} disconnected.")
+
+    def handle_report(self):
+        while True:
+            self.cpu_ps.append(psutil.cpu_percent(1))
+            self.memory_ps.append(psutil.virtual_memory()[2])
+
+host = "localhost"
+port = 12345
+server = Server(host, port)
+t = threading.Thread(target=server.start, daemon=True)
+t.start()
+
+while True:
+    s = input("Command:")
+    if s == 'quit':
+        print(f"{server.received} bytes received")
+        break
+
+
+line1, = plt.plot(server.cpu_ps, label="CPU usage")
+line2, = plt.plot(server.memory_ps, label="Memory usage")
+leg = plt.legend(loc='upper center')
+plt.ylabel('Percentage (%)')
+ax = plt.gca()
+ax.set_ylim([0, 100])
+plt.show()
