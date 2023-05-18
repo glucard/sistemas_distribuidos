@@ -61,7 +61,7 @@ class Server:
         while True:
             self.cpu_ps.append(psutil.cpu_percent(1))
             self.memory_ps.append(psutil.virtual_memory()[3]/1000000000)
-            self.net_ps.append(psutil.net_io_counters().bytes_sent / (1024 ** 2))
+            self.net_ps.append(psutil.net_io_counters().bytes_sent)
 
 host = "localhost"
 port = 12345
@@ -87,5 +87,5 @@ plt.ylabel('Memory (Gbs)')
 
 plt.subplot(3, 1, 3)
 plt.plot(server.net_ps, label="Network usage")
-plt.ylabel('Network usage (Gbs)')
+plt.ylabel('Packets received')
 plt.show()
