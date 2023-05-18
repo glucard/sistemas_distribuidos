@@ -59,7 +59,7 @@ class Server:
     def handle_report(self):
         while True:
             self.cpu_ps.append(psutil.cpu_percent(1))
-            self.memory_ps.append(psutil.virtual_memory()[2])
+            self.memory_ps.append(psutil.virtual_memory()[3]/1000000000)
 
 host = "localhost"
 port = 12345
@@ -75,14 +75,11 @@ while True:
 
 
 plt.subplot(2, 1, 1)
-
-line1, = plt.plot(server.cpu_ps, label="CPU usage")
-plt.ylabel('Percentage (%)')
+plt.plot(server.cpu_ps, label="CPU usage")
+plt.ylabel('CPU usage (%)')
 #plt.xticks()
 
-plt.twinx()
-line2, = plt.plot(server.memory_ps, label="Memory usage")
-plt.ylabel('Percentage (%)')
-
-plt.gca().set_ylim(ymin=0)
+plt.subplot(2, 1, 2)
+plt.plot(server.memory_ps, label="Memory usage")
+plt.ylabel('Memory (Gbs)')
 plt.show()

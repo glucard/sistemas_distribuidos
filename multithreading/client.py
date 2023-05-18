@@ -31,7 +31,7 @@ def handle_client():
         client.close()
 
 threads = []
-for i in range(100):
+for i in range(1000):
     thread = threading.Thread(target=handle_client)
     thread.daemon = True
     thread.start()
