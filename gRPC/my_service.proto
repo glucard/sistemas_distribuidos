@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package my_service;
+
+service MyService {
+  rpc Command (CommandRequest) returns (CommandRequest) {}
+}
+
+message CommandRequest {
+  string command = 1;
+}
+
+message CommandResponse {
+  string command_output = 1;
+}
