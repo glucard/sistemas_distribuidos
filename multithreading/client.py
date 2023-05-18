@@ -24,10 +24,11 @@ def handle_client():
         client.sendall(msg.encode())
 
     msg = client.recv(1024)
-    print(f"{msg.decode()}")
+    if msg:
+        print(f"{msg.decode()}")
 
-    client.sendall("quit".encode())
-    client.close()
+        client.sendall("quit".encode())
+        client.close()
 
 threads = []
 for i in range(100):

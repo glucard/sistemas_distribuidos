@@ -44,11 +44,10 @@ class Server:
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected.")
 
-        connected = True
-        while connected:
+        while True:
             msg = conn.recv(1024)
-            if msg == b"quit":
-                connected = False
+            if not msg or msg == b"quit":
+                break
             else:
                 self.received += getsizeof(msg)
                 #print(f"[{addr}] {msg.decode()}")
@@ -75,10 +74,15 @@ while True:
         break
 
 
+plt.subplot(2, 1, 1)
+
 line1, = plt.plot(server.cpu_ps, label="CPU usage")
-line2, = plt.plot(server.memory_ps, label="Memory usage")
-leg = plt.legend(loc='upper center')
 plt.ylabel('Percentage (%)')
-ax = plt.gca()
-ax.set_ylim([0, 100])
+#plt.xticks()
+
+plt.twinx()
+line2, = plt.plot(server.memory_ps, label="Memory usage")
+plt.ylabel('Percentage (%)')
+
+plt.gca().set_ylim(ymin=0)
 plt.show()
