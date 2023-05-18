@@ -14,6 +14,7 @@ class Server:
 
         self.cpu_ps = []
         self.memory_ps = []
+        self.net_ps = []
         self.received = 0
 
         self.threads = []
@@ -60,6 +61,7 @@ class Server:
         while True:
             self.cpu_ps.append(psutil.cpu_percent(1))
             self.memory_ps.append(psutil.virtual_memory()[3]/1000000000)
+            self.net_ps.append(psutil.net_io_counters().bytes_sent / (1024 ** 2))
 
 host = "localhost"
 port = 12345
@@ -74,12 +76,16 @@ while True:
         break
 
 
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(server.cpu_ps, label="CPU usage")
 plt.ylabel('CPU usage (%)')
 #plt.xticks()
 
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
 plt.plot(server.memory_ps, label="Memory usage")
 plt.ylabel('Memory (Gbs)')
+
+plt.subplot(3, 1, 3)
+plt.plot(server.net_ps, label="Network usage")
+plt.ylabel('Network usage (Gbs)')
 plt.show()
