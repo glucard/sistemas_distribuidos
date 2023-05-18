@@ -1,43 +1,38 @@
 import socket
 import threading
-from Crypto.Cipher import AES
-
-key = b'Sixteen byte key'
+from encrypt import do_decrypt, do_encrypt
 
 conns = []
 
 def chat_thread(conn, addr):
     while True:
+        # recebe a mensagem
         data = conn.recv(1024)
-        msg = do_decrypt(data)
-        print(f'Mensagem recebida: {msg}, encrypted: {data}')
-        
+        # verifica se a mensagem existe
+        if not data:
+            break
+
+        # encripta
+        msg = do_decrypt(data).decode("utf-8") 
+        print(f'from {addr} encrypted: {data}')
+        resend_msg = do_encrypt('De '+str(addr)+': '+msg)
         # Envia uma resposta para o cliente
         for conn_ in conns:
             if conn == conn_:
                 continue
-            conn_.sendall(data)
+            conn_.sendall(resend_msg)
+        
+        # caso a mensagem for 'stop', finaliza tal cliente
         if msg == 'stop':
-            conn.sendall('Servidor parando...'.encode())
             break
 
         # Fecha a conexão
+    print(f"Encerrando {addr}...")
+    conns.remove(conn)
     conn.close()
 
-
-def do_encrypt(msg):
-    obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
-    ciphertext = obj.encrypt(msg)
-    return ciphertext
-
-def do_decrypt(ciphertext):
-    obj2 = AES.new(key, AES.MODE_CBC, 'This is an IV456')
-    message = obj2.decrypt(ciphertext)
-    return message
-
-
 HOST = 'localhost'  # Endereço IP do servidor
-PORT = 5000  # Porta que o servidor vai escutar
+PORT = 5003  # Porta que o servidor vai escutar
 
 # Cria um objeto socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
